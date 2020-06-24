@@ -23,8 +23,12 @@
             <a class="nav-link" href="/">About</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="http://localhost:5000/evaluate">Evaluate</a>
+            <a class="nav-link" href="/evaluate">Evaluate</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/predict">Predict</a>
+          </li>
+          
           <li class="nav-item">
             <a class="nav-link" href="https://github.com/mahesh-keswani/IBMHackChallenge2020">Github</a>
           </li>
@@ -61,9 +65,9 @@
 		    <p>There are those multivariate time series forecasting problems where the output series is separate but dependent upon the input time series, and multiple time steps are required for the output series.</p>
 
 		    <p>For example, consider our multivariate time series</p>
-		    <img src="{{url_for('static', filename='example.png')}}" class="rounded" alt="Image" width="600" height="300">
+		    <img src="../static/example.PNG" class="rounded" alt="Image" width="600" height="300">
 		    <h3>The neural network architecture designed for training</h3>
-		    <img src="{{url_for('static', filename='network.png')}}" class="rounded" alt="Network architecture" width="600" height="300">
+		    <img src="../static/network.PNG" class="rounded" alt="Network architecture" width="600" height="300">
 		  </div>
 		</div>
 		<br>
@@ -72,31 +76,59 @@
 			<ul class="list-group">
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			    Epochs
-			    <span class="badge badge-primary badge-pill">30</span>
+			    <span class="badge badge-primary badge-pill">{{ data.epochs }}</span>
 			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			    Batch Size
-			    <span class="badge badge-primary badge-pill">64</span>
+			    <span class="badge badge-primary badge-pill">{{ data.batch_size }}</span>
 			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			    Learning Rate
-			    <span class="badge badge-primary badge-pill">0.01</span>
+			    <span class="badge badge-primary badge-pill">{{ data.lr }}</span>
 			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			    Number of steps in
-			    <span class="badge badge-primary badge-pill">216</span>
+			    <span class="badge badge-primary badge-pill">{{ data.n_steps_in }}</span>
 			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			    Number of steps out
-			    <span class="badge badge-primary badge-pill">72</span>
+			    <span class="badge badge-primary badge-pill">{{ data.n_steps_out }}</span>
 			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			    Clip norm
-			    <span class="badge badge-primary badge-pill">1.0</span>
+			    <span class="badge badge-primary badge-pill">{{ data.clip_norm }}</span>
 			  </li>
 			  
 			  
 			</ul>
+		</div>
+		<br><br>
+
+		<div class="container" id="techstack">
+			<h1>Features used for model building</h1>
+			<ul class="list-group">
+			  <li class="list-group-item">Wind Speend (m/s)</li>
+			  <li class="list-group-item">Theoretical power curve (KWh)</li>
+			  <li class="list-group-item">Wind direction</li>
+			  <li class="list-group-item">Wind gust (KM / h)</li>
+			  <li class="list-group-item">Dew Point in celcius</li>
+			  <li class="list-group-item">Wind chill in celcius</li>
+			</ul>
+		</div>
+		<br><br>
+		<div class="jumbotron jumbotron-fluid" id="algoUsed">
+		  <div class="container">
+		    <h3>Correlation matrix using pearson method</h3>
+		    <img src="../static/corrmatrix.png" class="rounded" alt="Image" width="600" height="500">
+		    <p>
+		    	From this matrix, we can clearly see that temperature, precipitation, humidity and pressure are showing no co-relation with Active power, therefore I did not considered them as features.
+		    </p>
+		    <h3>The loss during training</h3>
+		    <img src="../static/losses.png" class="rounded" alt="Network architecture" width="600" height="300">
+		    <p>
+		    	From the above graph, we can see that loss is continously decreasing with increasing number of epochs, we can further train the model inorder to solve this complex problem to achive better results.
+		    </p>
+		  </div>
 		</div>
 		<br><br>
    </body> 
