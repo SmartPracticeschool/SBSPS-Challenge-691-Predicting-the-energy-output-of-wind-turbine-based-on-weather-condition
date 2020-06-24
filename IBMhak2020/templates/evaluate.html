@@ -13,12 +13,22 @@
 		  	#myform{
 		  		width: 400px;
 		  		height: 300px;
-		  		margin-left: 350px;
+		  		margin-left: 300px;
 		  		padding:20px;
-		  		background-color: #bcbcbc;
 		  		border-radius: 10px;
 		  		margin-top: 20px;
 		  	}
+		  	.ps, #leftSide{
+		 		font-family: "Lucida Console", Courier;
+		 	}
+		 	#leftSide{
+		 		margin-left: 50px;
+		 		width: 400px;
+		 		height: 300px;
+		 		margin-top: 20px;
+		 		padding: 20px;
+		 		border-radius: 10px;
+		 	}
 		  </style>
 	</head> 
    <body>       
@@ -28,7 +38,10 @@
             <a class="nav-link" href="/">About</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="http://localhost:5000/evaluate">Evaluate</a>
+            <a class="nav-link" href="/evaluate">Evaluate</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/predict">Predict</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="https://github.com/mahesh-keswani/IBMHackChallenge2020">Github</a>
@@ -42,13 +55,41 @@
 
       <div class="container">
 
-     	<form action="http://localhost:5000/show_result" method="post" id="myform">
-		  <div class="form-group">
-		    <label for="number" id="heading">Enter number between 216 and 50458</label>
-		    <input type="number" class="form-control" name = "number" placeholder="Enter number" min="216" max="50458" id="number">
+      	<div class="row">
+      		<div class="col-md-3">
+      			<div class="jumbotron jumbotron-fluid" id="leftSide">
+      				<h3>What this page does ?</h3>
+      				<hr>
+      				<p>Takes the number between 144 and 50458 because model takes 144 previous steps to predict the next 72 steps, therefore the minimum number should be 144, then it takes that number fetches previous 144 data points from the dataset and predicts the best time for which Active power will be high for next 72 hours.</p>
+      			</div>
+      		</div>
+      		<div class="col-md-9">
+      			<div class="jumbotron" id="myform">
+	      			<form method="post" action="/evaluate">
+					  <div class="form-group">
+					    <label for="number" id="heading">Enter number between 144 and 50458</label>
+					    <input type="number" class="form-control" name = "number" placeholder="Enter number" min="144" max="50458" id="number">
+					    <br>
+					    <center>
+					    	<input type="submit" class="btn btn-primary" value="Submit">
+					    </center>
+					    
+					  </div>
+			  		</form>	
+		  		</div>
+      		</div>
+      	</div>
+
+     </div>
+     <br><br>
+     <div class="jumbotron jumbotron-fluid">
+     	<div class="container">
+		    <p class = "ps">Due to the unavailability of any API which provides the data of about wind speed, wind gust, wind direction,etc.  of the wind farm in real time, also these are some of the features used for building the model.</p>
+		    <hr>
+		    <p class="ps">Therefore, for the evaluation, the application uses the dataset only used for building the model.</p>
+		    <hr>
+		    <p class="ps">Also according to the problem statement, the application should predict the wind power for the next 72 hours, which requires alot of training, therefore due to the lack of computation power and TIME, the model is not trained well, it should be trained for many epochs.</p>
 		  </div>
-		    <button type="submit" class="btn btn-primary">Submit</button>
-		  </form>
      </div>
    </body> 
 </html>
