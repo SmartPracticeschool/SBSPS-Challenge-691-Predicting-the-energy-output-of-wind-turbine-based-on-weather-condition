@@ -25,7 +25,7 @@ def load_model():
 	with open('wind_turbine_architecture_20_6.json', 'r') as f:
 		model = model_from_json(f.read())
 
-	model.load_weight('wind_turbine_weights_20_6.h5')
+	model.load_weights('wind_turbine_weights_20_6.h5')
 	return model
 
 def fetch_and_normalize_data(number):
@@ -100,7 +100,7 @@ def predict_label(x, y = None):
 
 	model = load_model()
 	print("Model loaded!!")
-	yhat = model.predict(x.reshape(1, NUMBER_OF_STEPS_IN, n_features))
+	yhat = model.predict(x.reshape(1, NUMBER_OF_STEPS_IN, FEATURES))
 	y_hat_reshaped = yhat.reshape(yhat.shape[1])
 	
 	return  y_hat_reshaped, y
@@ -159,6 +159,7 @@ def create_plot(prediction, true = None):
 
 	plt.title("Hours v/s Energy")
 	plt.legend()
+	plt.show()
 
 @app.route('/',methods = ['GET']) 
 def index():
