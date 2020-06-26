@@ -3,6 +3,14 @@ import os
 
 app = Flask(__name__)  
 
+EPOCHS = 36
+BATCH_SIZE = 32
+LEARNING_RATE = 0.0001
+NUMBER_OF_STEPS_IN = 144
+NUMBER_OF_STEPS_OUT = 72
+CLIP_NORM = 0.5
+FEATURES = 6
+
 def load_model():
 
 	'''
@@ -34,18 +42,18 @@ def fetch_and_normalize_data(number):
 	from sklearn.metrics import mean_squared_error
 
 	print("In fetch_and_normalize_data_and_predict_data")
-	n_steps_in = 144
-	n_steps_out = 72
-	n_features = 6
+	# n_steps_in = 144
+	# n_steps_out = 72
+	# n_features = 6
 
 	df = pd.read_csv('model_data.csv')
 
 	print("Loaded the file")
 	sc = MinMaxScaler()
-	scaled_data = sc.fit_transform(df.values[(number - n_steps_in) : (number + n_steps_out), :])
+	scaled_data = sc.fit_transform(df.values[(number - NUMBER_OF_STEPS_IN) : (number + NUMBER_OF_STEPS_OUT), :])
 
-	scaled_x = scaled_data[:n_steps_in,  :-1]
-	scaled_y = scaled_data[-n_steps_out: , -1] 
+	scaled_x = scaled_data[:NUMBER_OF_STEPS_IN,  :-1]
+	scaled_y = scaled_data[-NUMBER_OF_STEPS_OUT: , -1] 
 	
 	print("scaling done!!!")
 
@@ -63,15 +71,15 @@ def fetch_last_n_stepsin(record):
 	from sklearn.preprocessing import MinMaxScaler
 	import numpy as np
 
-	n_steps_in = 144
-	n_steps_out = 72
-	n_features = 6
+	# n_steps_in = 144
+	# n_steps_out = 72
+	# n_features = 6
 
 	df = pd.read_csv('model_data.csv')
 	print("Loaded the file")
 
 	sc_x = MinMaxScaler()
-	data = df.values[-(n_steps_in - 1):, :-1]
+	data = df.values[-(NUMBER_OF_STEPS_IN - 1):, :-1]
 	record = np.array(record)
 	X = np.concatenate( (data, record.reshape(1, record.shape[0]) ), axis = 0)
 
@@ -86,13 +94,13 @@ def predict_label(x, y = None):
 		What it does?
 		Predicts the output for given features
 	'''
-	n_steps_in = 144
-	n_steps_out = 72
-	n_features = 6
+	# n_steps_in = 144
+	# n_steps_out = 72
+	# n_features = 6
 
 	model = load_model()
 	print("Model loaded!!")
-	yhat = model.predict(scaled_x.reshape(1, n_steps_in, n_features))
+	yhat = model.predict(x.reshape(1, NUMBER_OF_STEPS_IN, n_features))
 	y_hat_reshaped = yhat.reshape(yhat.shape[1])
 	
 	return  y_hat_reshaped, y
@@ -105,41 +113,52 @@ def predict_label(x, y = None):
 
 # 	print('record saved successfully')
 
+# def create_plot(prediction, true = None):
+# 	'''
+# 		Args: prediction, true(both numpy arrays)
+# 		Returns: graph to be plotted in UI
+
+# 		What it does?
+# 		Plots the prediction and ground truth if provided using plotly.
+# 	'''
+# 	import plotly
+# 	import plotly.graph_objects as go
+# 	import json
+
+# 	fig = go.Figure()
+
+# 	fig.add_trace(
+# 	    go.Scatter(
+# 	        x=prediction,
+# 	        y=list(range(72)),
+# 	        mode='lines', name='prediction',
+#                     opacity=0.8, marker_color='orange'
+# 	    ))
+
+# 	if true is not None:
+# 		fig.add_trace(
+# 		    go.Scatter(
+# 		        x=true,
+# 		        y=list(range(72)),
+# 		        mode='lines', name='True data',
+# 	                    opacity=0.8, marker_color='blue'
+# 		    ))
+
+# 	fig.show()
+# 	graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+# 	return graphJSON
+
 def create_plot(prediction, true = None):
-	'''
-		Args: prediction, true(both numpy arrays)
-		Returns: graph to be plotted in UI
+	import matplotlib.pyplot as plt 
 
-		What it does?
-		Plots the prediction and ground truth if provided using plotly.
-	'''
-	import plotly
-	import plotly.graph_objects as go
-	import json
-
-	fig = go.Figure()
-
-	fig.add_trace(
-	    go.Scatter(
-	        x=prediction,
-	        y=list(range(72)),
-	        mode='lines', name='prediction',
-                    opacity=0.8, marker_color='orange'
-	    ))
+	plt.plot(list(range(NUMBER_OF_STEPS_OUT)), prediction, label = "Prediction")
 
 	if true is not None:
-		fig.add_trace(
-		    go.Scatter(
-		        x=true,
-		        y=list(range(72)),
-		        mode='lines', name='True data',
-	                    opacity=0.8, marker_color='blue'
-		    ))
+		plt.plot(list(range(NUMBER_OF_STEPS_OUT)), true, label = "Ground truth")
 
-	fig.show()
-	graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-	return graphJSON
+	plt.title("Hours v/s Energy")
+	plt.legend()
 
 @app.route('/',methods = ['GET']) 
 def index():
@@ -147,12 +166,6 @@ def index():
 		Args: no args
 		Returns the home page of application
 	'''
-	EPOCHS = 30
-	BATCH_SIZE = 32
-	LEARNING_RATE = 0.0001
-	NUMBER_OF_STEPS_IN = 144
-	NUMBER_OF_STEPS_OUT = 72
-	CLIP_NORM = 0.5
 
 	data = {
 			'epochs':EPOCHS, 'batch_size':BATCH_SIZE, 'lr':LEARNING_RATE,
@@ -182,8 +195,13 @@ def evaluate():
 		scaled_x, scaled_y = fetch_and_normalize_data(number)
 		prediction, true = predict_label(scaled_x, scaled_y)
 
-		plot = create_plot(prediction, true)
-		return render_template('graph.html', plot = plot)
+		create_plot(prediction, true)
+		data = {
+			'epochs':EPOCHS, 'batch_size':BATCH_SIZE, 'lr':LEARNING_RATE,
+			'n_steps_in':NUMBER_OF_STEPS_IN,'n_steps_out':NUMBER_OF_STEPS_OUT,
+			'clip_norm':CLIP_NORM
+			}
+		return render_template('about.html', data = data)
 
 @app.route('/predict', methods = ['GET', 'POST'])
 def predict():
@@ -210,8 +228,15 @@ def predict():
 		X = fetch_last_n_stepsin(record)
 		prediction, y = predict_label(X)
 
-		plot = create_plot(prediction)
-		return render_template('graph.html', plot = plot)
+		create_plot(prediction)
+
+		data = {
+			'epochs':EPOCHS, 'batch_size':BATCH_SIZE, 'lr':LEARNING_RATE,
+			'n_steps_in':NUMBER_OF_STEPS_IN,'n_steps_out':NUMBER_OF_STEPS_OUT,
+			'clip_norm':CLIP_NORM
+			}
+
+		return render_template('about.html', data = data)
 
 if __name__ == '__main__':
-	app.run(debug = True)
+	app.run(debug = False)
