@@ -5,3 +5,4 @@ numpy==1.16.2
 Flask==1.1.2
 scikit_learn==0.23.1
 matplotlib
+protobuf==3.6.0
