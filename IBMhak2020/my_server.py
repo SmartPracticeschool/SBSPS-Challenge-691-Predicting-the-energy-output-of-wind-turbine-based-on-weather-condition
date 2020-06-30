@@ -113,53 +113,53 @@ def predict_label(x, y = None):
 
 # 	print('record saved successfully')
 
-# def create_plot(prediction, true = None):
-# 	'''
-# 		Args: prediction, true(both numpy arrays)
-# 		Returns: graph to be plotted in UI
-
-# 		What it does?
-# 		Plots the prediction and ground truth if provided using plotly.
-# 	'''
-# 	import plotly
-# 	import plotly.graph_objects as go
-# 	import json
-
-# 	fig = go.Figure()
-
-# 	fig.add_trace(
-# 	    go.Scatter(
-# 	        x=prediction,
-# 	        y=list(range(72)),
-# 	        mode='lines', name='prediction',
-#                     opacity=0.8, marker_color='orange'
-# 	    ))
-
-# 	if true is not None:
-# 		fig.add_trace(
-# 		    go.Scatter(
-# 		        x=true,
-# 		        y=list(range(72)),
-# 		        mode='lines', name='True data',
-# 	                    opacity=0.8, marker_color='blue'
-# 		    ))
-
-# 	fig.show()
-# 	graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-# 	return graphJSON
-
 def create_plot(prediction, true = None):
-	import matplotlib.pyplot as plt 
+	'''
+		Args: prediction, true(both numpy arrays)
+		Returns: graph to be plotted in UI
 
-	plt.plot(list(range(NUMBER_OF_STEPS_OUT)), prediction, label = "Prediction")
+		What it does?
+		Plots the prediction and ground truth if provided using plotly.
+	'''
+	import plotly
+	import plotly.graph_objects as go
+	import json
+
+	fig = go.Figure()
+
+	fig.add_trace(
+	    go.Scatter(
+	        x=list(range(72)),
+	        y=prediction,
+	        mode='lines', name='prediction',
+                    opacity=0.8, marker_color='orange'
+	    ))
 
 	if true is not None:
-		plt.plot(list(range(NUMBER_OF_STEPS_OUT)), true, label = "Ground truth")
+		fig.add_trace(
+		    go.Scatter(
+		        x=list(range(72)),
+		        y=true,
+		        mode='lines', name='True data',
+	                    opacity=0.8, marker_color='blue'
+		    ))
 
-	plt.title("Hours v/s Energy")
-	plt.legend()
-	plt.show()
+	fig.show()
+	graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+	return graphJSON
+
+# def create_plot(prediction, true = None):
+# 	import matplotlib.pyplot as plt 
+
+# 	plt.plot(list(range(NUMBER_OF_STEPS_OUT)), prediction, label = "Prediction")
+
+# 	if true is not None:
+# 		plt.plot(list(range(NUMBER_OF_STEPS_OUT)), true, label = "Ground truth")
+
+# 	plt.title("Hours v/s Energy")
+# 	plt.legend()
+# 	plt.show()
 
 @app.route('/',methods = ['GET']) 
 def index():
@@ -196,13 +196,14 @@ def evaluate():
 		scaled_x, scaled_y = fetch_and_normalize_data(number)
 		prediction, true = predict_label(scaled_x, scaled_y)
 
-		create_plot(prediction, true)
-		data = {
-			'epochs':EPOCHS, 'batch_size':BATCH_SIZE, 'lr':LEARNING_RATE,
-			'n_steps_in':NUMBER_OF_STEPS_IN,'n_steps_out':NUMBER_OF_STEPS_OUT,
-			'clip_norm':CLIP_NORM
-			}
-		return render_template('about.html', data = data)
+		plot = create_plot(prediction, true)
+		return render_template('graph.html', plot = plot)
+# 		data = {
+# 			'epochs':EPOCHS, 'batch_size':BATCH_SIZE, 'lr':LEARNING_RATE,
+# 			'n_steps_in':NUMBER_OF_STEPS_IN,'n_steps_out':NUMBER_OF_STEPS_OUT,
+# 			'clip_norm':CLIP_NORM
+# 			}
+# 		return render_template('about.html', data = data)
 
 @app.route('/predict', methods = ['GET', 'POST'])
 def predict():
@@ -229,15 +230,16 @@ def predict():
 		X = fetch_last_n_stepsin(record)
 		prediction, y = predict_label(X)
 
-		create_plot(prediction)
+		plot = create_plot(prediction)
+		return render_template('graph.html', plot = plot)
 
-		data = {
-			'epochs':EPOCHS, 'batch_size':BATCH_SIZE, 'lr':LEARNING_RATE,
-			'n_steps_in':NUMBER_OF_STEPS_IN,'n_steps_out':NUMBER_OF_STEPS_OUT,
-			'clip_norm':CLIP_NORM
-			}
+# 		data = {
+# 			'epochs':EPOCHS, 'batch_size':BATCH_SIZE, 'lr':LEARNING_RATE,
+# 			'n_steps_in':NUMBER_OF_STEPS_IN,'n_steps_out':NUMBER_OF_STEPS_OUT,
+# 			'clip_norm':CLIP_NORM
+# 			}
 
-		return render_template('about.html', data = data)
+# 		return render_template('about.html', data = data)
 
 if __name__ == '__main__':
 	app.run(debug = False)
